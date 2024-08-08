@@ -1,0 +1,60 @@
+name: CI Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment object'
+        required: false
+        default: {}
+      framework:
+        description: 'Framework object'
+        required: false
+        default: {}
+      remoteGitHubRepository:
+        description: 'Remote GitHub repository'
+        required: true
+      remoteBranch:
+        description: 'Remote branch'
+        required: false
+        default: 'main'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      REMOTE_BRANCH: ${{ github.event.inputs.remoteBranch }}
+      REMOTE_REPO: ${{ github.event.inputs.remoteGitHubRepository }}
+      GITHUB_DOMAIN: ${{ secrets.SAAS_GITHUB_DOMAIN }}
+      GITHUB_USERNAME: ${{ secrets.SAAS_GITHUB_USERNAME }}
+      GITHUB_API_TOKEN: ${{ secrets.SAAS_GITHUB_API_TOKEN }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_CREDENTIALS: ${{ secrets.AWS_CREDENTIALS }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Retrieve SaaS GitHub credentials
+        run: |
+          python python-scripts/retrieve-saas-github-credentials
+        env:
+          AWS_REGION: ${{ env.AWS_REGION }}
+          AWS_CREDENTIALS: ${{ env.AWS_CREDENTIALS }}
+
+      - name: Set Git configuration
+        run: |
+          git config --global url.https://${{ env.GITHUB_USERNAME }}:${{ env.GITHUB_API_TOKEN }}@${{ env.GITHUB_DOMAIN }}.insteadOf https://${{ env.GITHUB_DOMAIN }}
+          git clone -b $REMOTE_BRANCH https://${{ env.GITHUB_DOMAIN }}/VF-DigitalEngineering-CloudEngineering/$REMOTE_REPO.git
+          remoteWorkingDirPath=$(pwd)/$REMOTE_REPO
+          echo "remoteWorkingDirPath=$remoteWorkingDirPath" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Display the working directory
+        run: echo "Working directory is set to ${{ env.remoteWorkingDirPath }}"
