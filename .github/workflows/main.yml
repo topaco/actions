@@ -6,14 +6,15 @@ on:
       environment:
         description: 'Environment object'
         required: false
-        default: {}
+        default: '{}'
       framework:
         description: 'Framework object'
         required: false
-        default: {}
+        default: '{}'
       remoteGitHubRepository:
         description: 'Remote GitHub repository'
         required: true
+        default: ''
       remoteBranch:
         description: 'Remote branch'
         required: false
