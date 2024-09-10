@@ -15,11 +15,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Checkout Scripts
-        run: |
-          # Replace this with a script for checking out other scripts
-          echo "Checking out scripts..."
-
       - name: Create Variables Directory
         run: |
           mkdir -p ${{ github.workspace }}/${{ github.event.inputs.framework.module.inputs.workingDirectory || 'cicd/variables' }}
@@ -37,14 +32,13 @@ jobs:
 
       - name: Load User Variables
         run: |
-          python /scripts/load_user_vars.py "${{ github.workspace }}/${{ github.event.inputs.framework.module.inputs.workingDirectory || 'cicd/variables' }}" '{"environment": "${{ github.event.inputs.framework.environment.name }}", "project": "${{ github.repository }}"}'
+          python ${{ github.workspace }}/scripts/load_user_vars.py "${{ github.workspace }}/${{ github.event.inputs.framework.module.inputs.workingDirectory || 'cicd/variables' }}" '{"environment": "${{ github.event.inputs.framework.environment.name }}", "project": "${{ github.repository }}"}'
 
   predeploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Scripts
         run: |
-          # Replace this with a script for checking out other scripts
           echo "Checking out scripts..."
 
       - name: Download Artifact
@@ -58,14 +52,13 @@ jobs:
 
       - name: Load User Variables
         run: |
-          python /scripts/load_user_vars.py "$(Pipeline.Workspace)/variables" '{"service": "${{ github.event.inputs.framework.service.prefix || github.event.inputs.framework.service.name }}", "environment": "${{ github.event.inputs.framework.environment.name }}", "project": "${{ github.repository }}"}'
+          python ${{ github.workspace }}/scripts/load_user_vars.py "$(Pipeline.Workspace)/variables" '{"service": "${{ github.event.inputs.framework.service.prefix || github.event.inputs.framework.service.name }}", "environment": "${{ github.event.inputs.framework.environment.name }}", "project": "${{ github.repository }}"}'
 
   prehelmrollback:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Scripts
         run: |
-          # Replace this with a script for checking out other scripts
           echo "Checking out scripts..."
 
       - name: Download Artifact
@@ -79,14 +72,13 @@ jobs:
 
       - name: Load User Variables
         run: |
-          python /scripts/load_user_vars.py "$(Pipeline.Workspace)/variables" '{"service": "${{ github.event.inputs.framework.service.prefix || github.event.inputs.framework.service.name }}", "environment": "${{ github.event.inputs.framework.environment.name }}", "project": "${{ github.repository }}"}'
+          python ${{ github.workspace }}/scripts/load_user_vars.py "$(Pipeline.Workspace)/variables" '{"service": "${{ github.event.inputs.framework.service.prefix || github.event.inputs.framework.service.name }}", "environment": "${{ github.event.inputs.framework.environment.name }}", "project": "${{ github.repository }}"}'
 
   predestroy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Scripts
         run: |
-          # Replace this with a script for checking out other scripts
           echo "Checking out scripts..."
 
       - name: Retrieve Output Variables
@@ -105,4 +97,4 @@ jobs:
 
       - name: Load User Variables
         run: |
-          python /scripts/load_user_vars.py "$(Pipeline.Workspace)/variables" '{"service": "${{ github.event.inputs.framework.service.prefix || github.event.inputs.framework.service.name }}", "environment": "${{ github.event.inputs.framework.environment.name }}", "project": "${{ github.repository }}"}'
+          python ${{ github.workspace }}/scripts/load_user_vars.py "$(Pipeline.Workspace)/variables" '{"service": "${{ github.event.inputs.framework.service.prefix || github.event.inputs.framework.service.name }}", "environment": "${{ github.event.inputs.framework.environment.name }}", "project": "${{ github.repository }}"}'
