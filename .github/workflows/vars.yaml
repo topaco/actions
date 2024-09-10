@@ -23,8 +23,9 @@ jobs:
       - name: Publish Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ github.event.inputs.framework.module.name }}
+          name: ${{ github.event.inputs.framework.module.name || 'default-artifact-name' }}  # Fallback to 'default-artifact-name' if module.name is empty
           path: ${{ github.workspace }}/${{ github.event.inputs.framework.module.inputs.workingDirectory || 'cicd/variables' }}
+
 
       - name: Install Python Dependencies
         run: |
