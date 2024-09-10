@@ -1,0 +1,5 @@
+---
+#
+# LOCUST WORKER CONFIGURATION.
+#
+worker_replicas: 1

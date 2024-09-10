@@ -1,0 +1,58 @@
+---
+context_path: headlesspipeline
+service_type: locust
+kubernetes_namespace: locust
+datadog_enabled: true
+log_level: "INFO"
+
+#
+# LOCUST WORKER CONFIGURATION.
+#
+worker_replicas: 1
+
+worker_cpu: "500m"
+worker_ephemeral_storage: "1Gi"
+worker_memory: "512Mi"
+
+worker_admin_context_path: "headlesspipeline-admin"
+worker_admin_port: 8090
+
+#
+# LOCUST CONTROLLER CONFIGURATION.
+#
+controller_replicas: 1
+
+controller_cpu: "500m"
+controller_ephemeral_storage: "1Gi"
+controller_memory: "512Mi"
+
+controller_context_path: "headlesspipeline"
+controller_admin_context_path: "headlesspipeline-admin"
+controller_web_port: 8089
+controller_bind_port: 5557
+controller_admin_port: 8090
+
+controller_health_checks_liveness_probe_failure_threshold: 10
+controller_health_checks_liveness_probe_initial_delay_seconds: 10
+controller_health_checks_liveness_probe_path: "/headlesspipeline-admin/locust_health_check"
+controller_health_checks_liveness_probe_period_seconds: 5
+controller_health_checks_liveness_probe_port: 8090
+controller_health_checks_liveness_probe_timeout_seconds: 5
+
+controller_health_checks_readiness_probe_failure_threshold: 3
+controller_health_checks_readiness_probe_initial_delay_seconds: 10
+controller_health_checks_readiness_probe_path: "/headlesspipeline-admin/locust_health_check"
+controller_health_checks_readiness_probe_period_seconds: 10
+controller_health_checks_readiness_probe_port: 8090
+controller_health_checks_readiness_probe_success_threshold: 2
+controller_health_checks_readiness_probe_timeout_seconds: 5
+
+controller_upstream_config_defaults_limits_max_connections: 1000
+controller_upstream_config_defaults_limits_max_pending_requests: 100
+controller_upstream_config_defaults_limits_max_concurrent_requests: 900
+
+#
+# KARPENTER PROVISIONER.
+#
+nodepool_expire_after: 2592000s
+nodepool_max_cpu_capacity: 12
