@@ -1,81 +1,108 @@
-name: variables example
+name: CI/CD Workflow
+
 on:
   push:
-    branches: [ "main", "dev" ]
-  
-  workflow_dispatch:  
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Set up JDK 11
-      uses: actions/setup-java@v3
-      with:
-        java-version: '11'
-        distribution: 'temurin'
-    
-    - uses: gradle/gradle-build-action@v2
-      with:
-        arguments: build
-        gradle-version: '7.3'
-    - uses: gradle/gradle-build-action@v2
-      with:
-        gradle-version: '7.3'
-        arguments: test
-        
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: archive.zip
-        path: build/libs
-  
-  deploy-dev:
-    needs: [build-and-test]
-    if: github.ref == 'refs/heads/dev'
-      
-    runs-on: ubuntu-latest
-    environment:
-      name: dev
-      url: https://github.com/${{ github.repository }}/releases/tag/v${{ vars.DEV_VERSION }}    
-    
-    steps:      
-      - name: Download candidate artifacts
-        uses: actions/download-artifact@v3       
-        with:
-          name: archive.zip
-    
-      - name: release to dev
-        uses: softprops/action-gh-release@v0.1.15
-        with:
-          tag_name: v${{ vars.DEV_VERSION }}
-          token: ${{ secrets.DEV_TOKEN }}
-          prerelease: true
-          draft: true
-          name: dev
-          files: greetings-deploy.jar         
+      - name: Checkout Code
+        uses: actions/checkout@v2
 
-  deploy-prod:
-      needs: [build-and-test]
-      if: github.ref == 'refs/heads/main'
-      
-      runs-on: ubuntu-latest
-      environment:
-        name: prod
-        url: https://github.com/${{ github.repository }}/releases/tag/v${{ vars.PROD_VERSION }}
-      steps:        
-        - name: Download candidate artifacts
-          uses: actions/download-artifact@v3       
-          with:
-            name: archive.zip    
-          
-        - name: GH Release
-          uses: softprops/action-gh-release@v0.1.15
-          with:
-            tag_name: v${{ vars.PROD_VERSION }}
-            token: ${{ secrets.PROD_TOKEN }}
-            generate_release_notes: true
-            name: Production
-            files: greetings-deploy.jar 
+      - name: Checkout Scripts
+        run: |
+          # Replace this with a script for checking out other scripts
+          echo "Checking out scripts..."
+
+      - name: Create Variables Directory
+        run: |
+          mkdir -p ${{ github.workspace }}/${{ github.event.inputs.framework.module.inputs.workingDirectory || 'cicd/variables' }}
+        shell: bash
+
+      - name: Publish Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.event.inputs.framework.module.name }}
+          path: ${{ github.workspace }}/${{ github.event.inputs.framework.module.inputs.workingDirectory || 'cicd/variables' }}
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install pyyaml
+
+      - name: Load User Variables
+        run: |
+          python /scripts/load_user_vars.py "${{ github.workspace }}/${{ github.event.inputs.framework.module.inputs.workingDirectory || 'cicd/variables' }}" '{"environment": "${{ github.event.inputs.framework.environment.name }}", "project": "${{ github.repository }}"}'
+
+  predeploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Scripts
+        run: |
+          # Replace this with a script for checking out other scripts
+          echo "Checking out scripts..."
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: variables
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install pyyaml
+
+      - name: Load User Variables
+        run: |
+          python /scripts/load_user_vars.py "$(Pipeline.Workspace)/variables" '{"service": "${{ github.event.inputs.framework.service.prefix || github.event.inputs.framework.service.name }}", "environment": "${{ github.event.inputs.framework.environment.name }}", "project": "${{ github.repository }}"}'
+
+  prehelmrollback:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Scripts
+        run: |
+          # Replace this with a script for checking out other scripts
+          echo "Checking out scripts..."
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: variables
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install pyyaml
+
+      - name: Load User Variables
+        run: |
+          python /scripts/load_user_vars.py "$(Pipeline.Workspace)/variables" '{"service": "${{ github.event.inputs.framework.service.prefix || github.event.inputs.framework.service.name }}", "environment": "${{ github.event.inputs.framework.environment.name }}", "project": "${{ github.repository }}"}'
+
+  predestroy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Scripts
+        run: |
+          # Replace this with a script for checking out other scripts
+          echo "Checking out scripts..."
+
+      - name: Retrieve Output Variables
+        run: |
+          echo "Running Python script to retrieve output variables..."
+          python python-scripts/retrieve-output-variables.py
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: variables
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install pyyaml
+
+      - name: Load User Variables
+        run: |
+          python /scripts/load_user_vars.py "$(Pipeline.Workspace)/variables" '{"service": "${{ github.event.inputs.framework.service.prefix || github.event.inputs.framework.service.name }}", "environment": "${{ github.event.inputs.framework.environment.name }}", "project": "${{ github.repository }}"}'
