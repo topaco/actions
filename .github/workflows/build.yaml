@@ -44,7 +44,7 @@ jobs:
       - name: Retrieve ADO PAT Token
         id: ado_token
         run: |
-          python3 retrieve_ado_credentials.py
+          python3 load_user_vars.py
         working-directory: ${{ github.workspace }}/scripts/python
 
       # (Optional) Further steps can be added here, using the ADO token if needed
