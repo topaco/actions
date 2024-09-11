@@ -1,7 +1,8 @@
 name: Install GitHub CLI
 
-on: [push]
-
+on: workflow_dispatch
+concurrency: 
+  group: build-and-test
 jobs:
   install-gh:
     runs-on: ubuntu-latest
