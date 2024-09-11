@@ -1,26 +1,31 @@
-name: Install GitHub CLI
+name: Build
 
-on: workflow_dispatch
-concurrency: 
-  group: build-and-test
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
 jobs:
-  install-gh:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Set up the environment
-      run: |
-        sudo apt-get update
-        sudo apt-get install wget
+      # Checkout the repository (equivalent to 'checkout_self.yaml')
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Download GitHub CLI
-      run: |
-        wget https://github.com/cli/cli/releases/download/v2.36.0/gh_2.36.0_linux_amd64.deb
+      # Run bash script to create variables directory
+      - name: Create variables directory
+        run: |
+          set -euxo pipefail
+          mkdir -p ${{ github.workspace }}/cicd/variables
 
-    - name: Install GitHub CLI
-      run: |
-        sudo dpkg -i gh_2.36.0_linux_amd64.deb
-
-    - name: Check gh version
-      run: |
-        gh --version
+      # Upload the artifact (equivalent to 'PublishPipelineArtifact@1')
+      - name: Publish Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.event.repository.name }}-artifact
+          path: ${{ github.workspace }}/cicd/variables
