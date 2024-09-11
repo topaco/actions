@@ -26,9 +26,11 @@ jobs:
 
   predeploy:
     runs-on: ubuntu-latest
-    needs: build  # Ensure the predeploy job runs after the build job
-
+    needs: build  # Ensure the predeploy job runs after the
+    
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
       # Download the artifact that was uploaded in the build job
       - name: Download Artifact
         uses: actions/download-artifact@v3
