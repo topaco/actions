@@ -17,7 +17,7 @@ jobs:
       - name: Publish Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ github.event.inputs.framework.module.name || 'default-artifact-name' }}  # Ensure the artifact name is not empty
+          name: ${{ github.event.inputs.framework.module.name }}
           path: ${{ github.workspace }}/${{ github.event.inputs.framework.module.inputs.workingDirectory || 'cicd/variables' }}
 
       - name: Install Python Dependencies
@@ -27,3 +27,68 @@ jobs:
       - name: Load User Variables
         run: |
           python ${{ github.workspace }}/scripts/load_user_vars.py "${{ github.workspace }}/${{ github.event.inputs.framework.module.inputs.workingDirectory || 'cicd/variables' }}" '{"environment": "${{ github.event.inputs.framework.environment.name }}", "project": "${{ github.repository }}"}'
+
+  predeploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Scripts
+        run: |
+          echo "Checking out scripts..."
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: variables
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install pyyaml
+
+      - name: Load User Variables
+        run: |
+          python ${{ github.workspace }}/scripts/load_user_vars.py "$(Pipeline.Workspace)/variables" '{"service": "${{ github.event.inputs.framework.service.prefix || github.event.inputs.framework.service.name }}", "environment": "${{ github.event.inputs.framework.environment.name }}", "project": "${{ github.repository }}"}'
+
+  prehelmrollback:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Scripts
+        run: |
+          echo "Checking out scripts..."
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: variables
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install pyyaml
+
+      - name: Load User Variables
+        run: |
+          python ${{ github.workspace }}/scripts/load_user_vars.py "$(Pipeline.Workspace)/variables" '{"service": "${{ github.event.inputs.framework.service.prefix || github.event.inputs.framework.service.name }}", "environment": "${{ github.event.inputs.framework.environment.name }}", "project": "${{ github.repository }}"}'
+
+  predestroy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Scripts
+        run: |
+          echo "Checking out scripts..."
+
+      - name: Retrieve Output Variables
+        run: |
+          echo "Running Python script to retrieve output variables..."
+          python python-scripts/retrieve-output-variables.py
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: variables
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install pyyaml
+
+      - name: Load User Variables
+        run: |
+          python ${{ github.workspace }}/scripts/load_user_vars.py "$(Pipeline.Workspace)/variables" '{"service": "${{ github.event.inputs.framework.service.prefix || github.event.inputs.framework.service.name }}", "environment": "${{ github.event.inputs.framework.environment.name }}", "project": "${{ github.repository }}"}'
