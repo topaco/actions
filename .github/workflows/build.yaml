@@ -1,0 +1,25 @@
+name: Install GitHub CLI
+
+on: [push]
+
+jobs:
+  install-gh:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Set up the environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install wget
+
+    - name: Download GitHub CLI
+      run: |
+        wget https://github.com/cli/cli/releases/download/v2.36.0/gh_2.36.0_linux_amd64.deb
+
+    - name: Install GitHub CLI
+      run: |
+        sudo dpkg -i gh_2.36.0_linux_amd64.deb
+
+    - name: Check gh version
+      run: |
+        gh --version
