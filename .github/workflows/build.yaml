@@ -1,12 +1,6 @@
-name: Build
+name: Build and Predeploy
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: workflow_dispatch
 
 jobs:
   build:
@@ -29,3 +23,19 @@ jobs:
         with:
           name: ${{ github.event.repository.name }}-artifact
           path: ${{ github.workspace }}/cicd/variables
+
+  predeploy:
+    runs-on: ubuntu-latest
+    needs: build  # Ensure the predeploy job runs after the build job
+
+    steps:
+      # Download the artifact that was uploaded in the build job
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ github.event.repository.name }}-artifact
+
+      # (Optional) Do something with the downloaded artifact
+      - name: List contents of artifact
+        run: |
+          ls -la ${{ github.workspace }}
