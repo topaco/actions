@@ -39,3 +39,12 @@ jobs:
       - name: List contents of artifact
         run: |
           ls -la ${{ github.workspace }}
+
+      # Run the Python script to retrieve the ADO PAT Token
+      - name: Retrieve ADO PAT Token
+        id: ado_token
+        run: |
+          python3 retrieve_ado_credentials.py
+        working-directory: ${{ github.workspace }}/scripts/python
+
+      # (Optional) Further steps can be added here, using the ADO token if needed
