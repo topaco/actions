@@ -11,3 +11,4 @@ jobs:
     steps:
     - name: Print organization name
       run: echo "Organization name is: ${{ github.repository_owner }}"
+      shell: bash
