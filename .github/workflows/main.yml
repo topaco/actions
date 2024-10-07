@@ -1,6 +1,6 @@
 name: Organization Context Example
 
-on: [push]
+on: workflow_dispatch
 
 jobs:
   example_job:
