@@ -1,0 +1,13 @@
+name: Organization Context Example
+
+# Only allow manual triggers
+on:
+  workflow_dispatch:
+
+jobs:
+  example_job:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Print organization name
+      run: echo "Organization name is: ${{ github.repository_owner }}"
