@@ -1,2 +1,2 @@
 as# actions
-this repo for starting learning GitHub actions from scratch
+this repo for starting learning GitHub actions from scratchasda
